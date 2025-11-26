@@ -6,70 +6,32 @@ import ModalVideojuegos from "../components/ModalVideojuegos"
 import "./CRUDVideojuegosPage.css"
 
 export interface Videojuego {
-    id : number
+    id? : string
     nombre : string
-    categoria : string
-    plataformas : string[]
-    fecha : string
+    categoria? : string
+    categoria_id? : string
+    plataformas? : string[]
+    fecha? : string
     estado : string
 }
 
-const data : Videojuego[] = [
-    {
-        id: 1,
-        nombre: "Ecos de la Ciudad",
-        categoria: "Aventura",
-        plataformas: ["PC", "PS5"],
-        fecha: "2024-03-15",
-        estado: "Nuevo"
-    },
-    {
-        id: 2,
-        nombre: "Furia Galáctica",
-        categoria: "Shooter",
-        plataformas: ["PC", "Xbox Series X", "Switch"],
-        fecha: "2023-11-02",
-        estado: "Usado"
-    },
-    {
-        id: 3,
-        nombre: "Leyenda del Bosque",
-        categoria: "Rol",
-        plataformas: ["PC"],
-        fecha: "2025-01-20",
-        estado: "Nuevo"
-    },
-    {
-        id: 4,
-        nombre: "Rally Extremo",
-        categoria: "Carreras",
-        plataformas: ["PS5", "Xbox Series X"],
-        fecha: "2022-09-10",
-        estado: "Digital"
-    },
-    {
-        id: 5,
-        nombre: "Puzzle: Conexiones",
-        categoria: "Puzzle",
-        plataformas: ["Mobile", "PC"],
-        fecha: "2024-07-01",
-        estado: "Nuevo"
-    },
-    {
-        id: 6,
-        nombre: "Cazadores Nocturnos",
-        categoria: "Horror",
-        plataformas: ["PC", "PS5"],
-        fecha: "2021-10-31",
-        estado: "Usado"
-    }
-]
+export interface Categoria {
+    id : string
+    nombre : string
+}
+
+export interface Plataforma {
+    id : string
+    nombre : string
+}
 
 const CRUDVideojuegosPage = () => {
     const [showModal, setShowModal] = useState<boolean>(false)
     const [listaVideojuegos, setListaVideojuegos] = useState<Videojuego[]>([])
+    const [listaCategorias, setListaCategorias] = useState<Categoria[]>([])
+    const [listaPlataformas, setListaPlataformas] = useState<Plataforma[]>([])
     const [flagRecarga, setFlagRecarga] = useState<boolean>(false)
-    const [idVideojuegoAEditar, setIdVideojuegoAEditar] = useState<number|undefined>(undefined)
+    const [idVideojuegoAEditar, setIdVideojuegoAEditar] = useState<string|undefined>(undefined)
 
     const httpObtenerVideojuegos = async () => {
         const resp = await fetch("http://localhost:5002/videojuegos")
@@ -77,7 +39,19 @@ const CRUDVideojuegosPage = () => {
         setListaVideojuegos(data)
     }
 
-    const httpEliminarVideojuego = async (id: number) => {
+    const httpObtenerCategorias = async () => {
+        const resp = await fetch("http://localhost:5002/categorias")
+        const data = await resp.json()
+        setListaCategorias(data)
+    }
+
+    const httpObtenerPlataformas = async () => {
+        const resp = await fetch("http://localhost:5002/plataformas")
+        const data = await resp.json()
+        setListaPlataformas(data)
+    }
+
+    const httpEliminarVideojuego = async (id: string) => {
         const resp = await fetch(`http://localhost:5002/videojuegos/eliminar?id=${id}`)
         if (resp.status == 200) {
             setFlagRecarga(!flagRecarga)
@@ -85,6 +59,9 @@ const CRUDVideojuegosPage = () => {
     }
 
     const httpCrearVideojuego = async (vj : Videojuego) => {
+        vj.plataformas = undefined
+        vj.id = undefined
+        vj.fecha = undefined
         const resp = await fetch("http://localhost:5002/videojuegos/crear", {
             method : "POST",
             headers : {
@@ -121,14 +98,14 @@ const CRUDVideojuegosPage = () => {
         setShowModal(false)
         setIdVideojuegoAEditar(undefined)
     }
-    const editVideojuego = (id : number) => {
+    const editVideojuego = (id : string) => {
         //.. Cargar la data del videojuego
         console.log(id)
         setIdVideojuegoAEditar(id)
         setShowModal(true)
     }
 
-    const deleteVideojuego = (id : number) => {
+    const deleteVideojuego = (id : string) => {
         console.log(`Se eliminar videojuego con ${id}`)
         httpEliminarVideojuego(id)
     }
@@ -143,6 +120,8 @@ const CRUDVideojuegosPage = () => {
 
     useEffect( () => {
         httpObtenerVideojuegos()
+        httpObtenerCategorias()
+        httpObtenerPlataformas()
     }, [flagRecarga] )
 
 
@@ -158,7 +137,9 @@ const CRUDVideojuegosPage = () => {
             onCloseModal={ closeModal }
             onCreateVideojuego={ createVideojuego }
             onUpdateVideojuego={ updateVideojuego }
-            idVideojuego={ idVideojuegoAEditar }/>
+            idVideojuego={ idVideojuegoAEditar }
+            categorias={listaCategorias}
+            plataformas={listaPlataformas} />
     </div>
 }
 

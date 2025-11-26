@@ -3,8 +3,8 @@ import type { Videojuego } from "../pages/CRUDVideojuegosPage"
 interface MainProps {
     videojuegos : Videojuego[]
     onOpenModal : () => void
-    onEditVideojuego : (id : number) => void
-    onDeleteVideojuego : (id : number) => void
+    onEditVideojuego : (id : string) => void
+    onDeleteVideojuego : (id : string) => void
 }
 
 const Main = (props : MainProps) => {

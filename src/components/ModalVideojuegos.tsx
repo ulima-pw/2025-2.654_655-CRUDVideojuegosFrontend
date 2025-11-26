@@ -1,5 +1,5 @@
 import { Modal } from "react-bootstrap"
-import type { Videojuego } from "../pages/CRUDVideojuegosPage"
+import type { Categoria, Plataforma, Videojuego } from "../pages/CRUDVideojuegosPage"
 import { useEffect, useState } from "react"
 
 interface ModalVideojuegosProps {
@@ -7,7 +7,9 @@ interface ModalVideojuegosProps {
     onCloseModal : () => void
     onCreateVideojuego : (vj : Videojuego) => void
     onUpdateVideojuego :  (vj : Videojuego) => void
-    idVideojuego? : number
+    idVideojuego? : string
+    categorias : Categoria[]
+    plataformas : Plataforma[]
 }
 
 const ModalVideojuegos = (props : ModalVideojuegosProps) => {
@@ -17,7 +19,7 @@ const ModalVideojuegos = (props : ModalVideojuegosProps) => {
     const [fecha, setFecha] = useState<string>("")
     const [estadoSeleccionado, setEstadoSeleccionado] = useState<string>("")
 
-    const httpObtenerVideojuego = async (id : number) => {
+    const httpObtenerVideojuego = async (id : string) => {
         const resp = await fetch(`http://localhost:5002/videojuegos/${id}`)
         if (resp.status == 200) {
             const vj = await resp.json()
@@ -88,12 +90,11 @@ const ModalVideojuegos = (props : ModalVideojuegosProps) => {
                         onChange={ onCategoriaChange }
                         required>
                         <option value="">Seleccione una categoría</option>
-                        <option value={"Aventura"}>Aventura</option>
-                        <option value={"Acción-Aventura"}>Acción-Aventura</option>
-                        <option value={"RPG"}>RPG</option>
-                        <option value={"Estrategia"}>Estrategia</option>
-                        <option value={"Deportes"}>Deportes</option>
-                        <option value={"Puzzle"}>Puzzle</option>
+                        {
+                            props.categorias.map((cat) => {
+                                return <option value={cat.id}>{ cat.nombre }</option>
+                            })
+                        }
                     </select>
                 </div>
                 <div className="mb-3">
@@ -102,13 +103,11 @@ const ModalVideojuegos = (props : ModalVideojuegosProps) => {
                         value={ plataformasSeleccionadas }
                         onChange={ onPlataformasSeleccionadasChange }
                         required>
-                        <option value={"PC"}>PC</option>
-                        <option value={"PlayStation 4"}>PlayStation 4</option>
-                        <option value={"PlayStation 5"}>PlayStation 5</option>
-                        <option value={"Xbox One"}>Xbox One</option>
-                        <option value={"Xbox Series X/S"}>Xbox Series X/S</option>
-                        <option value={"Nintendo Switch"}>Nintendo Switch</option>
-                        <option value={"Wii U"}>Wii U</option>
+                        {
+                            props.plataformas.map((p)=>{
+                                return <option value={p.id}>{ p.nombre }</option>
+                            })
+                        }
                     </select>
                 </div>
                 <div className="mb-3">
@@ -138,9 +137,9 @@ const ModalVideojuegos = (props : ModalVideojuegosProps) => {
             <button type="button" className="btn btn-primary"
                 onClick={ () => {                    
                     const vj : Videojuego = {
-                        id : props.idVideojuego == undefined ? 0 : props.idVideojuego,
+                        id : props.idVideojuego == undefined ? "" : props.idVideojuego,
                         nombre : nombre,
-                        categoria : categoriaSeleccionada,
+                        categoria_id : categoriaSeleccionada,
                         plataformas : plataformasSeleccionadas,
                         fecha : fecha,
                         estado : estadoSeleccionado
